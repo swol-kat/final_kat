@@ -1,0 +1,24 @@
+@import "pretty-please.css";
+
+body {
+  padding-top: 2em;
+}
+
+.jog_grid {
+  display: grid;
+  grid-gap: 0.5em;
+  grid-template-columns: auto;
+  justify-content: center;
+  float: none;
+  text-align: center;
+}
+
+#jog_container {
+  display: flex;
+}
+
+.pretty.button.jog {
+  padding: 0.1em;
+  width: 2em;
+}
+

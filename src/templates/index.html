@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename= 'css/index.css') }}"
+    />
+
+    <!--libraries-->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script
+      src="https://kit.fontawesome.com/42c9c129d2.js"
+      crossorigin="anonymous"
+    ></script>
+    <!--my javscript-->
+    <script src="{{ url_for('static', filename= 'js/index.js') }}"></script>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"></script>
+
+    <title>Kat Go Brr</title>
+  </head>
+  <body>
+    <div class="pretty container">
+      <div style="width: 50%; float: left">
+        <div id="jog_container">
+          <div data-axis="t1" class="jog_grid">
+            <button data-dir="+" class="pretty jog button">+</button>
+            t1
+            <button data-dir="+" class="pretty jog button">-</button>
+          </div>
+          <div data-axis="t2" class="jog_grid">
+            <button data-dir="+" class="pretty jog button">+</button>
+            t2
+            <button data-dir="+" class="pretty jog button">-</button>
+          </div>
+          <div data-axis="t3" class="jog_grid">
+            <button data-dir="+" class="pretty jog button">+</button>
+            t3
+            <button data-dir="+" class="pretty jog button">-</button>
+          </div>
+          <div data-axis="x" class="jog_grid">
+            <button data-dir="+" class="pretty jog button">+</button>
+            x
+            <button data-dir="+" class="pretty jog button">-</button>
+          </div>
+          <div data-axis="y" class="jog_grid">
+            <button data-dir="+" class="pretty jog button">+</button>
+            y
+            <button data-dir="+" class="pretty jog button">-</button>
+          </div>
+          <div data-axis="z" class="jog_grid">
+            <button data-dir="+" class="pretty jog button">+</button>
+            z
+            <button data-dir="+" class="pretty jog button">-</button>
+          </div>
+          <div class="jog_grid">
+          Jog Amount
+          <input size = '1' class = 'pretty jog input' id='jog_amount' value='.1'> </input>
+          </div>
+        </div>
+        <br>
+        <div id='button_holders'>
+          <button class= 'pretty smaller button'id='setup'> Setup
+          </button> 
+          <button class= 'pretty smaller red button'id='fuck'> Fuck
+          </button> 
+          <button class= 'pretty smaller button'id='home'> Home
+          </button> 
+          <button class= 'pretty smaller button'id='calibrate'> Calibrate
+          </button>
+          <button class= 'pretty smaller button'id='enable'> Enable
+          </button>
+        </div>
+        <h3>Status</h3>
+        <pre id="status"></pre>
+        <h3>Errors</h3>
+        <pre id="error"></pre>
+      </div>
+
+      <div style="width: 50%; float: right">
+        <div id="robot_plot"></div>
+      </div>
+      <br style="clear: both" />
+    </div>
+  </body>
+</html>
