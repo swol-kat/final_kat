@@ -6,7 +6,9 @@ name = "pypi"
 [packages]
 odrive = "*"
 numpy = "*"
-
+flask =  "*"
+Flask-SocketIO = "*"
+Flask-Cors = "*"
 [dev-packages]
 
 [requires]

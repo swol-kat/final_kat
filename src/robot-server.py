@@ -2,8 +2,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 
-# from init_virtual import setup
-from init_odrive import setup
+from main import setup
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
