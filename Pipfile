@@ -9,6 +9,8 @@ numpy = "*"
 flask =  "*"
 Flask-SocketIO = "*"
 Flask-Cors = "*"
+eventlet = "*"
+
 [dev-packages]
 
 [requires]

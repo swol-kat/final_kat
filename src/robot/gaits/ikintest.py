@@ -1,17 +1,18 @@
 import numpy as np
-
 from .gait import Gait
 from ..util import get_body_pts, get_rot_leg_orig, euler_tm
 from ..util import BodyState
-import time
-import copy
 
-class Wiggle(Gait):
+class IkinTest:
 
     def __init__(self):
-        super().__init__()
-        self.last_time = time.time()
+        self.params = {}
+        self.path = []
+        self.i = 0
+        self.gen_test()
 
+    def __bool__(self):
+        return True
 
     def loop(self, robot):
         """
@@ -19,10 +20,6 @@ class Wiggle(Gait):
         :param robot: takes in the robot object
         :return:
         """
-        #print(robot.movement_vector)
-        pos = copy.deepcopy(robot.movement_vector)
-        pos['z'] += 11
-        robot.target_base_state.update_state(**pos)
         #print(robot.target_base_state)
         width = robot.config["width"]
         length = robot.config["length"]
@@ -41,3 +38,5 @@ class Wiggle(Gait):
             if i ==3:
                 print(target_foot_pos)
             leg.target_pos = target_foot_pos
+
+        

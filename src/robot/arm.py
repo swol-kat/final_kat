@@ -26,7 +26,10 @@ class Arm:
 
     def ikin(self, pos_vect):
         x, y, z = pos_vect.reshape(3)
-        d1, d2, a2, a3 = self.arm_vars.values()
+        d1 = self.arm_vars['D1'] 
+        d2 = self.arm_vars['D2']
+        a2 = self.arm_vars['A2']
+        a3 = self.arm_vars['A3']
 
         r = math.hypot(x, y)
         alpha = math.atan2(y, x)
@@ -82,7 +85,7 @@ class Arm:
         
         return np.delete(J, 0, 1)
 
-    def fwkin(self, thetas=None, joint=3, vector=True, disp = False):
+    def fwkin(self, thetas=None, joint=3, vector=True):
         """
         converts joint angles stored in self.thetas to workspace returns:
         [float]  returns a either a 4x4 matrix of the transform from joint 1 to the input joint or a 3x1 vector
@@ -93,16 +96,10 @@ class Arm:
             thetas = self.thetas
 
         t1, t2, t3 = thetas.reshape(3)
-        if disp:
-            dh_table = [[t1, self.arm_vars['D1'], 0, - math.pi / 2],
-                        [0, self.arm_vars['D2'], 0, 0],
-                        [t2, 0, self.arm_vars['A2'], 0],
-                        [t3-t2, 0, self.arm_vars['A3'], 0]]
 
-        else:
-            dh_table = [[t1, self.arm_vars['D1'], 0, - math.pi / 2],
-                        [t2, self.arm_vars['D2'], self.arm_vars['A2'], 0],
-                        [t3-t2, 0, self.arm_vars['A3'], 0]]
+        dh_table = [[t1, self.arm_vars['D1'], 0, - math.pi / 2],
+                    [t2, self.arm_vars['D2'], self.arm_vars['A2'], 0],
+                    [t3-t2, 0, self.arm_vars['A3'], 0]]
         # identity matrix
         t_final = np.identity(4)
         # calculate fwkin
@@ -165,10 +162,10 @@ class Arm:
     def go_to_thetas(self, thetas):
         t1, t2, t3 = thetas.reshape(3)
         #check if elbow over travel. don't let joint go too far
-        if t3-t2 > math.pi * 0.75 :
-            t3 = t2 + math.pi * 0.75
-        if t3-t2 < math.pi * -0.5 :
-            t3 = t2 - math.pi * 0.5
+        # if t3-t2 > math.pi * 0.75 :
+        #     t3 = t2 + math.pi * 0.75
+        # if t3-t2 < math.pi * -0.5 :
+        #     t3 = t2 - math.pi * 0.5
         self.shoulder_axis.set_setpoint(t1)
         self.upper_axis.set_setpoint(t2)
         self.lower_axis.set_setpoint(t3)

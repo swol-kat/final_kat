@@ -58,7 +58,7 @@ def configure_axis(axis, output_dict):
     axis.controller.config.inertia = 0.0
     axis.controller.config.homing_speed = 0.25
     axis.min_endstop.config.is_active_high = False
-    axis.min_endstop.config.enabled = True
+    axis.min_endstop.config.enabled = False
     axis.min_endstop.config.offset = -0.5
     axis.min_endstop.config.pullup = True
     output_dict['config_complete'] = True
@@ -79,7 +79,6 @@ def home_axis(axis, output_dict):
         print('axis error occured')
         print(f'error: {hex(axis.error)}')
     output_dict['home_started'] = True
-    print('starting home')
 
 def set_axis_zero(axis, output_dict):
     axis.clear_errors()
@@ -87,14 +86,12 @@ def set_axis_zero(axis, output_dict):
     axis.encoder.set_linear_count(0)
 
 def check_home(axis, output_dict):
-    print('checking home')
     if axis.error:
         print('axis error occured')
         print(f'error: {hex(axis.error)}')
     if axis.current_state == odrive.enums.AXIS_STATE_IDLE:
         #add encoder rounding logic here
         output_dict['home_complete'] = True
-        print('home complete')
     else:
         output_dict['home_complete'] = False
 

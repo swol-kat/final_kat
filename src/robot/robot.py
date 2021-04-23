@@ -21,7 +21,6 @@ class Robot:
             arm_dict['back_left'],
             arm_dict['back_right']
         ]
-        self.temp = 1
 
     def boot(self):
         """
@@ -50,10 +49,7 @@ class Robot:
             self.gait.loop(self)
         for arm in self.arms:
             arm.update()
-            
-        self.temp += 1
-        if self.temp >= 5:
-            self.temp = 1
+        
         
 
     def reload_config(self):

@@ -12,8 +12,8 @@ class OpenWalk(Gait):
     def __init__(self):
         super().__init__()
         self.params = {
-            'step_time': 1,  # seconds per movment
-            'step_height': 2,  # inches,
+            'step_time': .2,  # seconds per movment
+            'step_height': 3,  # inches,
         }
         self.last_loop_time = time.time()
         self.last_time = time.time()

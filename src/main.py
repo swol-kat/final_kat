@@ -1,4 +1,3 @@
-print('start')
 import odrive
 import odrive.enums
 import time
@@ -8,7 +7,10 @@ from collections import namedtuple
 import json
 from robot import Robot, Arm, VirtualJoint, Threaded_Joint, Odrive_Controller
 from robot.gaits import Wiggle, OpenWalk
-
+from robot.util import swing_pos, ground_pos
+from math import tau
+import numpy as np
+import random
 odrive_pipe = namedtuple('odrive_pipe', ['to_worker', 'to_main', 'axis_0_name', 'axis_1_name'])
 
 process_list = []
@@ -17,7 +19,7 @@ joint_dict = {}
 axis_dict = {}
 serials = []
 arm_dict = {}
-arm_variables = {'D1': 3.319, 'D2': 3.125, 'A2': 7.913, 'A3': 7.913} #some default variables
+arm_variables = {'D1': 3.319+.35, 'D2': 3.124, 'A2': 7.913, 'A3': 7.913} #some default variables
 robot = None
 
 # setup 
@@ -28,6 +30,7 @@ def setup():
     create_arms()
     flash_drive_params()
     calibrate_joints()
+    get_errors()
     print('Waiting 10 seconds before Zeroing Joints')
     time.sleep(10)
     zero_joints()
@@ -89,7 +92,7 @@ def find_odrives():
 def load_axis_data():
     print("Attempting To Load Axis Data")
     global axis_dict, serials
-    axis_dict = json.loads(open('axis_config_pack2.json', "r").read())
+    axis_dict = json.loads(open('axis_config_pack1.json', "r").read())
     serials = list(axis_dict.keys())
     print("Axis Data Loaded")
 
@@ -104,9 +107,9 @@ def create_arms():
     print("Attempting To Create Arm Objects")
     global arm_dict, arm_variables
     arm_dict = {}
-    arm_dict['front_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-5,8.27 / 160), arm_variables, 1)
+    arm_dict['front_right'] = Arm(joint_dict['1 lower'], joint_dict['1 upper'], joint_dict['1 shoulder'], arm_variables, 1)
     arm_dict['back_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-5,8.27 / 160), arm_variables, 4)
-    arm_dict['front_left'] = Arm(joint_dict['4 lower'], joint_dict['4 upper'], joint_dict['4 shoulder'], arm_variables, 2)
+    arm_dict['front_left'] = Arm(joint_dict['2 lower'], joint_dict['2 upper'], joint_dict['2 shoulder'], arm_variables, 2)
     arm_dict['back_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-5,8.27 / 160), arm_variables, 3)
     print("Arm Objects Created")
 
@@ -130,9 +133,8 @@ def flash_drive_params():
 def calibrate_joints():#just calibrate one arm for arjun
     print('Attempting To Calibrating Joints')
     global joint_dict, odrive_controllers
-    joint_dict['4 upper'].calibrate()
-    joint_dict['4 lower'].calibrate()
-    joint_dict['4 shoulder'].calibrate()
+    for joint in joint_dict.values():
+        joint.calibrate()
 
     cal_incomplete = True
 
@@ -141,16 +143,17 @@ def calibrate_joints():#just calibrate one arm for arjun
             controller.send_packet()
         for controller in odrive_controllers:
             controller.block_for_response()
-        if joint_dict['4 upper'].is_calibration_complete() and joint_dict['4 lower'].is_calibration_complete() and joint_dict['4 shoulder'].is_calibration_complete():
-            cal_incomplete = False
+        for joint in joint_dict.values():
+            cal_incomplete &= joint.is_calibration_complete()
+            
+        cal_incomplete = not cal_incomplete
     print('Calibration Complete')
 
 def home_joints():
     global joint_dict, odrive_controllers
     print('Attempting To Homing Joints')
-    joint_dict['4 upper'].home()
-    joint_dict['4 lower'].home()
-    joint_dict['4 shoulder'].home()
+    for joint in joint_dict.values():
+        joint.home()
 
     cal_incomplete = True
 
@@ -159,16 +162,17 @@ def home_joints():
             controller.send_packet()
         for controller in odrive_controllers:
             controller.block_for_response()
-        if joint_dict['4 upper'].is_home_complete() and joint_dict['4 lower'].is_home_complete() and joint_dict['4 shoulder'].is_home_complete():
-            cal_incomplete = False
+        for joint in joint_dict.values():
+            cal_incomplete &= joint.is_home_complete()
+            
+        cal_incomplete = not cal_incomplete
     print('Joints Homed')
 
 def zero_joints():
     print('Attempting To Zeroing Joints')
     global joint_dict, odrive_controllers
-    joint_dict['4 upper'].set_zero()
-    joint_dict['4 lower'].set_zero()
-    joint_dict['4 shoulder'].set_zero()
+    for joint in joint_dict.values():
+        joint.set_zero()
 
     for controller in odrive_controllers:
         controller.send_packet()
@@ -179,9 +183,8 @@ def zero_joints():
 def enable_joints():
     print('Attempting To Enable Joints')
     global joint_dict, odrive_controllers
-    joint_dict['4 upper'].enable()
-    joint_dict['4 lower'].enable()
-    joint_dict['4 shoulder'].enable()
+    for joint in joint_dict.values():
+        joint.enable()
 
     for controller in odrive_controllers:
         controller.send_packet()
@@ -192,9 +195,8 @@ def enable_joints():
 def disable_joints():
     print('Attempting To Disable Joints')
     global joint_dict, odrive_controllers
-    joint_dict['4 upper'].disable()
-    joint_dict['4 lower'].disable()
-    joint_dict['4 shoulder'].disable()
+    for joint in joint_dict.values():
+        joint.disable()
 
     for controller in odrive_controllers:
         controller.send_packet()
@@ -226,8 +228,74 @@ def loop():
     for controller in odrive_controllers:
         controller.block_for_response()
 
+def set_movement_vector(x=0,y=0,z=0,a=0,b=0,g=0):
+    movement_dict = {'x': x, 'y': y,'z':z, 'alpha':a,'beta':b,'gamma':g}
+    robot.movement_vector = movement_dict
     
+def run(seconds = 10):
+    start_time = time.time()
+    while time.time() - start_time < seconds:
+        loop()
+   
+def get_errors():
+    global joint_dict, odrive_controllers
+    for joint in joint_dict.values():
+        joint.poll_errors()
+
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()  
+        
+    for name,joint in joint_dict.items():
+        output = joint.get_errors()
+
+        print(f'{name}')
+        print()
+        print(output)
+        print()
+        
+
+
+def ikin_test():
+    a =arm_dict['front_left']
+    #testing x,y,z
+    pos_to_test = list(np.linspace([14,0,0],[5,0,0],100))
+    pos_to_test += list(np.linspace([5,0,0],[14,0,0],100))
+    zero = np.array([0,0,0])
+    
+    a.target_pos = (pos_to_test[0])
+    a.update()
+    loop()
+    time.sleep(3)
+    
+    
+    for p in pos_to_test:
+        print(p)
+        a.target_pos = (p)
+        a.update() 
+        loop()
+
+def joint_range_test(points_to_gen=100):
+    arms = [arm_dict['front_right'],arm_dict['front_left']]
+    zero = np.array([0,0,0])
+    angles_to_test = list(np.linspace(zero,[tau/16,tau/16,tau/16],points_to_gen))
+    angles_to_test += list(np.linspace([tau/16,tau/16,tau/16],[-tau/16,-tau/16,-tau/16],points_to_gen))
+    angles_to_test += list(np.linspace([-tau/16,-tau/16,-tau/16],zero,points_to_gen))
+    
+    for angle in angles_to_test:
+        for arm in arms:
+            arm.go_to_thetas(angle)
+            loop()
+
+
+
+
+def go_home():
+    for a in arm_dict.values():
+        a.go_to_thetas(np.array([0,0,0]))
+    loop()
 
 if __name__ =="__main__":
     robot = setup()
-    robot.gait = Wiggle()
+    robot.gait = OpenWalk()
