@@ -49,8 +49,8 @@ def configure_axis(axis, output_dict):
     axis.controller.config.enable_vel_limit = True
     axis.controller.config.control_mode = 3
     axis.controller.config.pos_gain = 25.0
-    axis.controller.config.vel_gain = 0.17
-    axis.controller.config.vel_integrator_gain = 0.33
+    axis.controller.config.vel_gain = 0.11
+    axis.controller.config.vel_integrator_gain = .33
     axis.controller.config.vel_limit = 10.0
     axis.controller.config.vel_limit_tolerance = 999999999
     axis.controller.config.vel_ramp_rate = 2.5

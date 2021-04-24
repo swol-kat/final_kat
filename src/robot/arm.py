@@ -36,12 +36,12 @@ class Arm:
         u = math.sqrt(r ** 2 - d2 ** 2)
         beta = math.atan2(d2, u)
         # t1
-        if self.corner in (2, 4):
+        if self.corner in (2,4):
             t1 = alpha - beta
-
         else:
-            t1 = alpha + beta + math.tau / 2
-
+            t1 = alpha + beta
+        
+        
         s = z - d1
         D = (r ** 2 + s ** 2 - a2 ** 2 - a3 ** 2) / (2 * a2 * a3)
 
@@ -55,11 +55,13 @@ class Arm:
         phi = math.atan2(s, r)
         gamma = math.atan2(a3 * math.sin(t3), a2 + a3 * math.cos(t3))
 
-        if self.corner in (1,3):
-            t2 = (phi + gamma) + math.tau/2
-            t3 = -t3
-        else:
+
+        if self.corner in (2,4):
             t2 = - (phi + gamma)
+        else: 
+            t2 = phi+gamma
+            t3 = -t3
+        
 
         t3 = t2 + t3
         return np.array([t1, t2, t3]).reshape((3, 1))
@@ -95,9 +97,12 @@ class Arm:
         if thetas is None:
             thetas = self.thetas
 
+        flip = 1
+        if self.corner in (2,4):
+            flip = -1
         t1, t2, t3 = thetas.reshape(3)
 
-        dh_table = [[t1, self.arm_vars['D1'], 0, - math.pi / 2],
+        dh_table = [[t1, self.arm_vars['D1'], 0, flip* math.pi / 2],
                     [t2, self.arm_vars['D2'], self.arm_vars['A2'], 0],
                     [t3-t2, 0, self.arm_vars['A3'], 0]]
         # identity matrix

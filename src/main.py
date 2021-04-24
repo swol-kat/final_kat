@@ -69,8 +69,8 @@ def odrive_worker(serial, conn):
         #pos, curr commands automatically done. must be sent in control packets
         od.axis0.controller.input_pos = command['axis_0']['pos_command']
         od.axis1.controller.input_pos = command['axis_1']['pos_command']
-        od.axis0.motor.config.current_lim = command['axis_0']['curr_command']
-        od.axis1.motor.config.current_lim = command['axis_1']['curr_command']
+        # od.axis0.motor.config.current_lim = command['axis_0']['curr_command']
+        # od.axis1.motor.config.current_lim = command['axis_1']['curr_command']
 
         out_data['axis_0']['data'] = {'pos':od.axis0.encoder.pos_estimate, 'vel':od.axis0.encoder.vel_estimate, 'current':od.axis0.motor.current_control.Iq_measured}
         out_data['axis_1']['data'] = {'pos':od.axis1.encoder.pos_estimate, 'vel':od.axis1.encoder.vel_estimate, 'current':od.axis1.motor.current_control.Iq_measured}
@@ -108,9 +108,9 @@ def create_arms():
     global arm_dict, arm_variables
     arm_dict = {}
     arm_dict['front_right'] = Arm(joint_dict['1 lower'], joint_dict['1 upper'], joint_dict['1 shoulder'], arm_variables, 1)
-    arm_dict['back_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-5,8.27 / 160), arm_variables, 4)
+    arm_dict['back_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 4)
     arm_dict['front_left'] = Arm(joint_dict['2 lower'], joint_dict['2 upper'], joint_dict['2 shoulder'], arm_variables, 2)
-    arm_dict['back_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-5,8.27 / 160), arm_variables, 3)
+    arm_dict['back_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 3)
     print("Arm Objects Created")
 
 def flash_drive_params():
@@ -227,6 +227,13 @@ def loop():
         controller.send_packet()
     for controller in odrive_controllers:
         controller.block_for_response()
+        
+def loop2():
+    global robot, odrive_controllers
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()
 
 def set_movement_vector(x=0,y=0,z=0,a=0,b=0,g=0):
     movement_dict = {'x': x, 'y': y,'z':z, 'alpha':a,'beta':b,'gamma':g}
@@ -266,7 +273,7 @@ def ikin_test():
     
     a.target_pos = (pos_to_test[0])
     a.update()
-    loop()
+    loop2()
     time.sleep(3)
     
     
@@ -274,20 +281,22 @@ def ikin_test():
         print(p)
         a.target_pos = (p)
         a.update() 
-        loop()
+        loop2()
+
+
 
 def joint_range_test(points_to_gen=100):
     arms = [arm_dict['front_right'],arm_dict['front_left']]
     zero = np.array([0,0,0])
-    angles_to_test = list(np.linspace(zero,[tau/16,tau/16,tau/16],points_to_gen))
-    angles_to_test += list(np.linspace([tau/16,tau/16,tau/16],[-tau/16,-tau/16,-tau/16],points_to_gen))
-    angles_to_test += list(np.linspace([-tau/16,-tau/16,-tau/16],zero,points_to_gen))
+    angles_to_test = list(np.linspace(zero,[tau/16,tau/16,tau/2],points_to_gen))
+    angles_to_test += list(np.linspace([tau/16,tau/16,tau/2],[-tau/16,-tau/16,-tau/2],points_to_gen))
+    angles_to_test += list(np.linspace([-tau/16,-tau/16,-tau/2],zero,points_to_gen))
     
     for angle in angles_to_test:
         for arm in arms:
             arm.go_to_thetas(angle)
-            loop()
-
+            loop2()
+    
 
 
 

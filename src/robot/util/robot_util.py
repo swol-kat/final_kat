@@ -31,8 +31,7 @@ def get_body_pts(state: BodyState, width: float, length: float, zero=False):
 
 
 def get_rot_leg_orig(leg_num):
-    rot_leg_orig = [euler_tm(- tau/4, - tau / 4, 0), euler_tm(tau / 4, tau / 4, 0), euler_tm(- tau / 4, tau / 4, 0),
-                    euler_tm(-tau / 4, tau / 4, 0)]
+    rot_leg_orig = [euler_tm(tau / 4, tau / 4, 0), euler_tm(tau / 4, tau / 4, 0), euler_tm(-tau / 4, tau / 4, 0), euler_tm(-tau / 4, tau / 4, 0)]
 
     return rot_leg_orig[leg_num]
 
