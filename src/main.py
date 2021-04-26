@@ -221,6 +221,7 @@ def kill_process():
         process.terminate()
     
 def reset_reboot_controller(drive):
+    global odrive_controllers
     drive.reboot_drive()
     for controller in odrive_controllers:
         controller.send_packet()
@@ -310,7 +311,40 @@ def get_errors():
         print(output)
         print()
         
+def check_reset_odrives():
+    global joint_dict, odrive_controllers
+    for joint in joint_dict.values():
+        joint.poll_errors()
 
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()
+    
+    for controller in odrive_controllers:
+        reset_controller = False
+        if controller.joint0.get_errors()['axis'] != 0:
+            reset_controller = True
+        if controller.joint1.get_errors()['axis'] != 0:
+            reset_controller = True
+        if reset_controller:
+            reset_reboot_controller(controller)
+        
+    for joint in joint_dict.values():
+        joint.poll_errors()
+
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()
+
+    no_errors = True
+    for joint in joint_dict.values():
+        if joint.get_errors()['axis'] != 0:
+            no_errors = False
+    
+    if not no_errors:
+        check_reset_odrives()
 
 def ikin_test():
     a =arm_dict['front_left']

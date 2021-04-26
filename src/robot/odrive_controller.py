@@ -73,4 +73,4 @@ class Odrive_Controller:
         self.state = 'ready'
 
     def reboot_drive(self):
-        self.state = 'reboot'        
+        self.state = 'reboot'     
