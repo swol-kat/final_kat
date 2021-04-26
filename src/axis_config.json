@@ -1,7 +1,47 @@
 {
+    "35649144373837": {
+        "axis1": {
+            "name": "4 shoulder",
+            "ratio": -9.0
+        },
+        "axis0": {
+            "name": "3 shoulder",
+            "ratio": -9.0
+        }
+    },
+    "35735093333325": {
+        "axis1": {
+            "name": "4 upper",
+            "ratio": 9.0
+        },
+        "axis0": {
+            "name": "3 upper",
+            "ratio": 9.0
+        }
+    },
     "35593308029517": {
         "axis1": {
-            "name": "1 lower",
+            "name": "4 lower",
+            "ratio": -9.0
+        },
+        "axis0": {
+            "name": "3 lower",
+            "ratio": -9.0
+        }
+    },
+    "35623373914701": { 
+        "axis1": {
+            "name": "2 shoulder",
+            "ratio": 9.0
+        },
+        "axis0": {
+            "name": "1 shoulder",
+            "ratio": 9.0
+        }
+    },
+    "35520294044237": {
+        "axis1": {
+            "name": "2 upper",
             "ratio": -9.0
         },
         "axis0": {
@@ -9,54 +49,13 @@
             "ratio": -9.0
         }
     },
-    "35735093333325": {
-        "axis1": {
-            "name": "1 shoulder",
-            "ratio": -5.0
-        },
-        "axis0": {
-            "name": "2 shoulder",
-            "ratio": -5.0
-        }
-    },
-    "35515999011405": {
+    "35554653323853": {
         "axis1": {
             "name": "2 lower",
             "ratio": -9.0
         },
         "axis0": {
-            "name": "2 upper",
-            "ratio": -9.0
-        }
-    },
-
-    "35554653323853": {
-        "axis1": {
-            "name": "3 lower",
-            "ratio": -9.0
-        },
-        "axis0": {
-            "name": "3 upper",
-            "ratio": -9.0
-        }
-    },
-    "35649144373837": {
-        "axis1": {
-            "name": "3 shoulder",
-            "ratio": -5.0
-        },
-        "axis0": {
-            "name": "4 shoulder",
-            "ratio": -5.0
-        }
-    },
-    "35623373914701": {
-        "axis1": {
-            "name": "4 lower",
-            "ratio": -9.0
-        },
-        "axis0": {
-            "name": "4 upper",
+            "name": "1 lower",
             "ratio": -9.0
         }
     }

@@ -7,17 +7,17 @@ from .gait import Gait
 from ..util import get_body_pts, get_rot_leg_orig, euler_tm, swing_pos, ground_pos
 
 
-class OpenWalk(Gait):
+class StaticWalk(Gait):
 
     def __init__(self):
         super().__init__()
         self.params = {
             'step_time': .5,  # seconds per movment
-            'step_height': 3,  # inches,
+            'step_height': 2,  # inches,
         }
         self.last_loop_time = time.time()
         self.last_time = time.time()
-        self.state = [1, 3]
+        self.state = [1]
         self.movement_vector = {'x': 0, 'y': 0,'z':0, 'alpha':0,'beta':0,'gamma':0}
         self.x_vel = 0
         self.y_vel = 0
@@ -44,7 +44,8 @@ class OpenWalk(Gait):
         l = math.hypot(self.x_vel, self.y_vel) * step_time
         phi = math.atan2(self.y_vel, self.x_vel) 
         d_swing = swing_pos(min(delta_t / step_time, 1), self.params['step_height'], l, phi)
-        d_ground = ground_pos(min(delta_t / step_time, 1), l/2, phi)
+        d_ground = ground_pos(min(delta_t / step_time, 1), l/4, phi)
+
         for i, leg in enumerate(robot.arms):
             target_foot_pos = np.array([body_pts[i][0], body_pts[i][1], 0]) + self.prev_foot_pos[i]
             if i in self.state:
@@ -64,10 +65,10 @@ class OpenWalk(Gait):
             self.next_state()
             if self.count == 1:
                 self.movement_vector = robot.movement_vector
-                self.x_vel = robot.movement_vector['x'] * 2
-                self.y_vel = robot.movement_vector['y'] * 2
+                self.x_vel = robot.movement_vector['x'] * 4
+                self.y_vel = robot.movement_vector['y'] * 4
 
-            self.count = (self.count + 1) % 2
+            self.count = (self.count + 1) % 4
 
     def next_state(self):
         for i, leg in enumerate(self.state):
