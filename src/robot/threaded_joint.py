@@ -215,7 +215,6 @@ class Threaded_Joint:
             command_dict['pos_command'] = self.angle_to_motor(self.pos_command)
             command_dict['curr_command'] = self.torque_to_current(self.torque_limit)
 
-
         return command_dict
 
     def recieve_data(self, data_dict):
@@ -321,3 +320,4 @@ class Threaded_Joint:
     
     def set_zero(self):
         self.state = 'set_zero'
+

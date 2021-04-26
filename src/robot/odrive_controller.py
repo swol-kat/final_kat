@@ -45,6 +45,15 @@ class Odrive_Controller:
             self.state = 'wait_for_response'
             self.odrive_pipe.send(odrive_command)
 
+        if self.state == 'reboot':
+            odrive_command = {}
+            odrive_command['axis_0'] = self.joint0.get_command()
+            odrive_command['axis_1'] = self.joint1.get_command()
+            odrive_command['reset_command'] = True
+            odrive_command['index'] = self.next_index + 1
+            self.state = 'wait_for_response'
+            self.odrive_pipe.send(odrive_command)
+
     
     def set_odrive_params(self):
         self.state = 'set_params'
@@ -63,4 +72,5 @@ class Odrive_Controller:
         self.joint1.recieve_data(data_in['axis_1'])
         self.state = 'ready'
 
-        
+    def reboot_drive(self):
+        self.state = 'reboot'        

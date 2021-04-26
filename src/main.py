@@ -62,6 +62,9 @@ def odrive_worker(serial, conn):
         if 'command' in command:
             #print('odrive command')
             command['command'](od, out_data['odrive'])
+        if 'reset_command' in command:
+            od.reboot()
+            od = odrive.find_any(serial_number = search_serial)
 
         #index command is necessary. added in odrive handler
         out_data['index'] = command['index']
@@ -216,6 +219,47 @@ def kill_process():
         controller.block_for_response()
     for process in process_list:
         process.terminate()
+    
+def reset_reboot_controller(drive):
+    drive.reboot_drive()
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()
+    drive.joint0.calibrate()
+    drive.joint1.calibrate()
+    
+    cal_incomplete = True
+
+    while cal_incomplete:
+        for controller in odrive_controllers:
+            controller.send_packet()
+        for controller in odrive_controllers:
+            controller.block_for_response()
+
+        cal_incomplete &= drive.joint0.is_home_complete()
+        cal_incomplete &= drive.joint1.is_home_complete()
+            
+        cal_incomplete = not cal_incomplete
+
+        time.sleep(5)
+    
+    drive.joint0.set_zero()
+    drive.joint1.set_zero()
+
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()
+
+    drive.joint0.enable()
+    drive.joint1.enable()
+
+    for controller in odrive_controllers:
+        controller.send_packet()
+    for controller in odrive_controllers:
+        controller.block_for_response()
+
 
 #------------------------------------arjun do stuff here ---------------------------------------------
 def create_robot():
