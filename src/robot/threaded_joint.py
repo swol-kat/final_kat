@@ -303,10 +303,10 @@ class Threaded_Joint:
 
     def get_errors(self):
         return {
-            'axis': hex(self.last_error_status['axis']),
-            'motor': hex(self.last_error_status['motor']),
-            'encoder': hex(self.last_error_status['encoder']),
-            'controller': hex(self.last_error_status['controller'])
+            'axis': self.last_error_status['axis'],
+            'motor': self.last_error_status['motor'],
+            'encoder': self.last_error_status['encoder'],
+            'controller': self.last_error_status['controller']
         }
 
     def is_calibration_complete(self):
