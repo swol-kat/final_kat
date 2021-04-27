@@ -50,7 +50,8 @@ class Odrive_Controller:
             odrive_command['axis_0'] = self.joint0.get_command()
             odrive_command['axis_1'] = self.joint1.get_command()
             odrive_command['reset_command'] = True
-            odrive_command['index'] = self.next_index + 1
+            odrive_command['index'] = self.next_index
+            self.next_index = self.next_index + 1
             self.state = 'wait_for_response'
             self.odrive_pipe.send(odrive_command)
 

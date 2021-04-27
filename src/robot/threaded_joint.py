@@ -13,20 +13,14 @@ def start_calibrate_joint(axis, output_dict):
     if axis.error:
         print('axis has existing errors')
         print(f'error: {hex(axis.error)}')
-    axis.requested_state = odrive.enums.AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+    axis.requested_state = odrive.enums.AXIS_STATE_ENCODER_OFFSET_CALIBRATION
     time.sleep(1)
     output_dict['curr_state'] = axis.current_state
 
 def check_curr_state(axis, output_dict):
-    if axis.error:
-        print('axis error occured')
-        print(f'error: {hex(axis.error)}')
     output_dict['curr_state'] = axis.current_state
 
 def enable_axis(axis, output_dict):
-    if axis.error:
-        print('axis error occured')
-        print(f'error: {hex(axis.error)}')
     axis.clear_errors()
     axis.requested_state = odrive.enums.AXIS_STATE_CLOSED_LOOP_CONTROL
     output_dict['curr_state'] = axis.current_state
@@ -42,6 +36,7 @@ def configure_axis(axis, output_dict):
     #gotta figure out how to do GPIO config. should come from odrive controller. new class for odrive functions needed
     axis.motor.config.pole_pairs = 20
     axis.motor.config.torque_constant = 8.27/160
+    axis.motor.config.pre_calibrated = True
     axis.motor.config.current_lim = 20.0
     axis.motor.config.requested_current_range = 25.0
     axis.motor.config.current_lim_margin = 1000
@@ -70,14 +65,10 @@ def get_errors(axis, output_dict):
     output_dict['controller'] = axis.controller.error
 
 def home_axis(axis, output_dict):
-    if axis.error:
-        print('axis error occured')
-        print(f'error: {hex(axis.error)}')
+
     axis.clear_errors()
     axis.requested_state = odrive.enums.AXIS_STATE_HOMING
-    if axis.error:
-        print('axis error occured')
-        print(f'error: {hex(axis.error)}')
+
     output_dict['home_started'] = True
 
 def set_axis_zero(axis, output_dict):
@@ -86,20 +77,14 @@ def set_axis_zero(axis, output_dict):
     axis.encoder.set_linear_count(0)
 
 def check_home(axis, output_dict):
-    if axis.error:
-        print('axis error occured')
-        print(f'error: {hex(axis.error)}')
     if axis.current_state == odrive.enums.AXIS_STATE_IDLE:
         #add encoder rounding logic here
         output_dict['home_complete'] = True
     else:
         output_dict['home_complete'] = False
 
-def show_errors(axis, outptu_dict):
-        if axis.error:
-            print('axis error occured')
-            print(f'error: {hex(axis.error)}')
-
+def show_errors(axis, output_dict):
+        pass
 class Threaded_Joint:
     def __init__(self, gear_ratio, torque_constant):
         self.gear_ratio = gear_ratio
@@ -273,6 +258,7 @@ class Threaded_Joint:
         if self.state == 'wait_home':
             if 'home_complete' in data_dict and data_dict['home_complete'] == True:
                 self.state = 'halt'
+                
 
     def calibrate(self):
         #only calibrate if in correct state to

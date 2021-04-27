@@ -30,7 +30,8 @@ def setup():
     create_arms()
     flash_drive_params()
     calibrate_joints()
-    get_errors()
+    while get_errors():
+        check_reset_odrives()
     print('Waiting 10 seconds before Zeroing Joints')
     time.sleep(30)
     zero_joints()
@@ -63,8 +64,13 @@ def odrive_worker(serial, conn):
             #print('odrive command')
             command['command'](od, out_data['odrive'])
         if 'reset_command' in command:
-            od.reboot()
+            try:
+                od.reboot()
+            except Exception as e:
+                print(e)
+                
             od = odrive.find_any(serial_number = search_serial)
+            print(f'odrive {search_serial} found')
 
         #index command is necessary. added in odrive handler
         out_data['index'] = command['index']
@@ -137,23 +143,27 @@ def flash_drive_params():
     else:
         print('No Controllers')
 
-def calibrate_joints():#just calibrate one arm for arjun
+def calibrate_joints(joints = None):#just calibrate one arm for arjun
     print('Attempting To Calibrating Joints')
     global joint_dict, odrive_controllers
-    for joint in joint_dict.values():
+    if not joints: 
+        joints = list(joint_dict.values())
+    
+    
+    for joint in joints:
         joint.calibrate()
 
-    cal_incomplete = True
+    cal_complete = False
 
-    while cal_incomplete:
+    while not cal_complete:
         for controller in odrive_controllers:
             controller.send_packet()
         for controller in odrive_controllers:
             controller.block_for_response()
-        for joint in joint_dict.values():
-            cal_incomplete &= joint.is_calibration_complete()
+        cal_complete = True
+        for joint in joints:
+            cal_complete &= joint.is_calibration_complete()
             
-        cal_incomplete = not cal_incomplete
     print('Calibration Complete')
 
 def home_joints():
@@ -227,39 +237,8 @@ def reset_reboot_controller(drive):
         controller.send_packet()
     for controller in odrive_controllers:
         controller.block_for_response()
-    drive.joint0.calibrate()
-    drive.joint1.calibrate()
     
-    cal_incomplete = True
-
-    while cal_incomplete:
-        for controller in odrive_controllers:
-            controller.send_packet()
-        for controller in odrive_controllers:
-            controller.block_for_response()
-
-        cal_incomplete &= drive.joint0.is_home_complete()
-        cal_incomplete &= drive.joint1.is_home_complete()
-            
-        cal_incomplete = not cal_incomplete
-
-        time.sleep(5)
-    
-    drive.joint0.set_zero()
-    drive.joint1.set_zero()
-
-    for controller in odrive_controllers:
-        controller.send_packet()
-    for controller in odrive_controllers:
-        controller.block_for_response()
-
-    drive.joint0.enable()
-    drive.joint1.enable()
-
-    for controller in odrive_controllers:
-        controller.send_packet()
-    for controller in odrive_controllers:
-        controller.block_for_response()
+    calibrate_joints([drive.joint0,drive.joint1])
 
 
 #------------------------------------arjun do stuff here ---------------------------------------------
@@ -302,16 +281,23 @@ def get_errors():
         controller.send_packet()
     for controller in odrive_controllers:
         controller.block_for_response()  
-        
+    
+    are_errors = False
     for name,joint in joint_dict.items():
         output = joint.get_errors()
-
-        print(f'{name}')
-        print()
-        print(output)
-        print()
-        
+        if output['axis'] != 0:
+            print(f'{name}')
+            print()
+            output = {key:hex(value) for key,value in output.items()}
+            print(output)
+            print()
+            are_errors = True
+    
+    return are_errors
+    
+            
 def check_reset_odrives():
+    
     global joint_dict, odrive_controllers
     for joint in joint_dict.values():
         joint.poll_errors()
@@ -329,23 +315,8 @@ def check_reset_odrives():
             reset_controller = True
         if reset_controller:
             reset_reboot_controller(controller)
-        
-    for joint in joint_dict.values():
-        joint.poll_errors()
-
-    for controller in odrive_controllers:
-        controller.send_packet()
-    for controller in odrive_controllers:
-        controller.block_for_response()
-
-    no_errors = True
-    for joint in joint_dict.values():
-        if joint.get_errors()['axis'] != 0:
-            no_errors = False
-    
-    if not no_errors:
-        check_reset_odrives()
-
+            
+            
 def ikin_test():
     a =arm_dict['front_left']
     #testing x,y,z
