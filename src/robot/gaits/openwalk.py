@@ -44,7 +44,7 @@ class OpenWalk(Gait):
         l = math.hypot(self.x_vel, self.y_vel) * step_time
         phi = math.atan2(self.y_vel, self.x_vel) 
         d_swing = swing_pos(min(delta_t / step_time, 1), self.params['step_height'], l, phi)
-        d_ground = ground_pos(min(delta_t / step_time, 1), l/2, phi)
+        d_ground = ground_pos(min(delta_t / step_time, 1), l, phi)
         for i, leg in enumerate(robot.arms):
             target_foot_pos = np.array([body_pts[i][0], body_pts[i][1], 0]) + self.prev_foot_pos[i]
             if i in self.state:

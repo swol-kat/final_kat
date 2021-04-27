@@ -28,12 +28,10 @@ def setup():
     find_odrives() 
     load_arm_vars()
     create_arms()
-    flash_drive_params()
-    calibrate_joints()
-    while get_errors():
-        check_reset_odrives()
-    print('Waiting 10 seconds before Zeroing Joints')
-    time.sleep(30)
+    get_errors()
+    disable_joints()
+    print('cocksucker home the fucking robot')
+    time.sleep(15)
     zero_joints()
     enable_joints()
     return create_robot()
@@ -116,14 +114,14 @@ def create_arms():
     print("Attempting To Create Arm Objects")
     global arm_dict, arm_variables
     arm_dict = {}
-    # arm_dict['front_right'] = Arm(joint_dict['1 lower'], joint_dict['1 upper'], joint_dict['1 shoulder'], arm_variables, 1)
-    arm_dict['front_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 1)
+    arm_dict['front_right'] = Arm(joint_dict['1 lower'], joint_dict['1 upper'], joint_dict['1 shoulder'], arm_variables, 1)
+    #arm_dict['front_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 1)
     arm_dict['back_right'] = Arm(joint_dict['4 lower'], joint_dict['4 upper'], joint_dict['4 shoulder'], arm_variables, 4)
-    # arm_dict['back_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 4)
-    # arm_dict['front_left'] = Arm(joint_dict['2 lower'], joint_dict['2 upper'], joint_dict['2 shoulder'], arm_variables, 2)
-    arm_dict['front_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 2)
+    #arm_dict['back_right'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 4)
+    arm_dict['front_left'] = Arm(joint_dict['2 lower'], joint_dict['2 upper'], joint_dict['2 shoulder'], arm_variables, 2)
+    #arm_dict['front_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 2)
     arm_dict['back_left'] = Arm(joint_dict['3 lower'], joint_dict['3 upper'], joint_dict['3 shoulder'], arm_variables, 3)
-    # arm_dict['back_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 3)
+    #arm_dict['back_left'] = Arm(VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), VirtualJoint(-9,8.27 / 160), arm_variables, 3)
     print("Arm Objects Created")
 
 def flash_drive_params():

@@ -1,7 +1,8 @@
 import odrive
 import odrive.enums
+import time
 
-odrives = odrive.find_any(find_multiple = int(input("how many odrives? ")))
+odrives = odrive.find_any(find_multiple = 6)
 
 jointList = []
 
@@ -13,13 +14,16 @@ def motor_configuration(axis):
     #gotta figure out how to do GPIO config. should come from odrive controller. new class for odrive functions needed
     axis.motor.config.pole_pairs = 20
     axis.motor.config.torque_constant = 8.27/160
-    axis.motor.config.current_lim = 20.0
+    axis.motor.config.current_lim = 15.0
     axis.motor.config.requested_current_range = 25.0
     axis.motor.config.current_lim_margin = 1000
     axis.motor.config.torque_lim = 10000
     axis.controller.config.enable_vel_limit = True
+    axis.motor.config.pre_calibrated = True
+    axis.config.startup_encoder_offset_calibration = True
+    axis.config.startup_closed_loop_control = True
     axis.controller.config.control_mode = 3
-    axis.controller.config.pos_gain = 25.0
+    axis.controller.config.pos_gain = 25
     axis.controller.config.vel_gain = 0.11
     axis.controller.config.vel_integrator_gain = .33
     axis.controller.config.vel_limit = 10.0
@@ -38,10 +42,11 @@ def drive_configuration(drive):
     drive.axis1.encoder.config.abs_spi_cs_gpio_pin = 5
     drive.axis0.min_endstop.config.gpio_num = 6
     drive.axis1.min_endstop.config.gpio_num = 7
-    drive.config.max_regen_current = 120.0
+    drive.config.max_regen_current = 120
     drive.config.dc_bus_overvoltage_trip_level = 45.0
-    drive.config.dc_max_positive_current = 120.0
-    drive.config.dc_max_negative_current = -120.0
+    drive.config.dc_bus_undervoltage_trip_level = 5.0
+    drive.config.dc_max_positive_current = 120
+    drive.config.dc_max_negative_current = -120
 
 def main():
 
