@@ -30,10 +30,11 @@ class Robot:
         """
         print('Robot is booting')
 
-        self.base_state = BodyState(z=5)
-        self.target_base_state = BodyState(z=5)
-        self.stance_width = 5
-        self.stance_length = 5
+        self.height = 4.5
+        self.base_state = BodyState(y=4,z=self.height)
+        self.target_base_state = BodyState(y=4, z=self.height)
+        self.stance_width = 4
+        self.stance_length = 4
         self.executing_movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
         self.movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
 
@@ -41,7 +42,7 @@ class Robot:
         self.gait.prev_foot_pos = get_body_pts(BodyState(),self.config['width']+self.stance_width,self.config['length']+self.stance_length, False)
         self.last_time = time.time()
 
-        self.loop_time = 3
+        self.loop_time = .5
         self.in_loop = False
         self.last_loop_time = time.time()
          
@@ -60,7 +61,7 @@ class Robot:
             if time.time() - self.last_loop_time > self.loop_time:
                 self.in_loop = False
         else:
-            self.target_base_state = BodyState(z=13)
+            # self.target_base_state = BodyState(z=self.height)
             self.gait.prev_foot_pos = get_body_pts(BodyState(),self.config['width']+self.stance_width,self.config['length']+self.stance_length, False)
             self.executing_movement_vector = copy.deepcopy(self.movement_vector)
             self.last_loop_time = time.time()

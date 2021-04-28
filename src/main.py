@@ -356,11 +356,11 @@ def go_home():
 
 if __name__ =="__main__":
     robot = setup()
-    # i = 0
+    i = 0
     while True:
-        # i += 1
+        i += 1
         loop()
-        if i ==400:
-            set_movement_vector(z=.2)
-        if robot.target_base_state.z = 13:
+        if i ==500:
+            set_movement_vector(z=.5)
+        if robot.target_base_state.z > 13:
             set_movement_vector()
