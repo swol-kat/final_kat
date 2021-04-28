@@ -1,8 +1,9 @@
 import json
 
-from .gaits import Gait, Wiggle, OpenWalk
-from .util import BodyState
+from .gaits import Gait, Wiggle, OpenWalk, StaticWalk
+from .util import BodyState, Plot, get_body_pts
 import time
+import copy
 
 class Robot:
     config: dict
@@ -29,15 +30,20 @@ class Robot:
         """
         print('Robot is booting')
 
-        self.base_state = BodyState(z=13)
-        self.target_base_state = BodyState(z=13)
-        
+        self.base_state = BodyState(z=5)
+        self.target_base_state = BodyState(z=5)
+        self.stance_width = 5
+        self.stance_length = 5
+        self.executing_movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
         self.movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
+
+        self.gait = Wiggle()
+        self.gait.prev_foot_pos = get_body_pts(BodyState(),self.config['width']+self.stance_width,self.config['length']+self.stance_length, False)
         self.last_time = time.time()
 
-        self.gait = OpenWalk()
-        self.last_time = time.time()
-        print('Robot is booted')
+        self.loop_time = 3
+        self.in_loop = False
+        self.last_loop_time = time.time()
          
 
     def loop(self):
@@ -45,22 +51,26 @@ class Robot:
         main control loop of robot run this in a while loop or something
         :return:
         """
-        pos_adjust = {k: v*(time.time()-self.last_time) for k,v in self.movement_vector.items()}
-        self.last_time=time.time()
-        self.target_base_state.move(**pos_adjust)
-        self.base_state = self.target_base_state
-
+        if self.in_loop:
+            pos_adjust = {k: v*(time.time()-self.last_time) for k,v in self.executing_movement_vector.items()}
+            self.last_time = time.time()
+            self.target_base_state.move(**pos_adjust)
+            print(self.target_base_state)
+            self.base_state = self.target_base_state
+            if time.time() - self.last_loop_time > self.loop_time:
+                self.in_loop = False
+        else:
+            self.target_base_state = BodyState(z=13)
+            self.gait.prev_foot_pos = get_body_pts(BodyState(),self.config['width']+self.stance_width,self.config['length']+self.stance_length, False)
+            self.executing_movement_vector = copy.deepcopy(self.movement_vector)
+            self.last_loop_time = time.time()
+            self.in_loop = True              
+                
         if self.gait:
             self.gait.loop(self)
         for arm in self.arms:
             arm.update()
-        self.last_time = time.time()
-        
-    def reset():
-        self.base_state = BodyState(z=13)
-        self.target_base_state = BodyState(z=13)
-        self.movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
-        self.state.gait=Wiggle()
+
 
     def reload_config(self):
         """

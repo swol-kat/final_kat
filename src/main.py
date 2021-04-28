@@ -30,7 +30,7 @@ def setup():
     create_arms()
     get_errors()
     disable_joints()
-    print('cocksucker home the fucking robot')
+    print('home the robit')
     time.sleep(15)
     zero_joints()
     enable_joints()
@@ -356,6 +356,11 @@ def go_home():
 
 if __name__ =="__main__":
     robot = setup()
-    robot.gait = Wiggle()
+    # i = 0
     while True:
+        # i += 1
         loop()
+        if i ==400:
+            set_movement_vector(z=.2)
+        if robot.target_base_state.z = 13:
+            set_movement_vector()
