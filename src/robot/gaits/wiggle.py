@@ -19,11 +19,6 @@ class Wiggle(Gait):
         :param robot: takes in the robot object
         :return:
         """
-        #print(robot.movement_vector)
-        pos = copy.deepcopy(robot.movement_vector)
-        pos['z'] += 11
-        robot.target_base_state.update_state(**pos)
-        #print(robot.target_base_state)
         width = robot.config["width"]
         length = robot.config["length"]
 

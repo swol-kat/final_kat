@@ -16,7 +16,6 @@ class OpenWalk(Gait):
             'step_height': 3,  # inches,
         }
         self.last_loop_time = time.time()
-        self.last_time = time.time()
         self.state = [1, 3]
         self.movement_vector = {'x': 0, 'y': 0,'z':0, 'alpha':0,'beta':0,'gamma':0}
         self.x_vel = 0
@@ -33,18 +32,13 @@ class OpenWalk(Gait):
 
 
         body_pts = get_body_pts(robot.target_base_state, width, length, False)
-        
-        pos_adjust = {k: v*(time.time()-self.last_time) for k,v in self.movement_vector.items()}
-        self.last_time=time.time()
-        robot.target_base_state.move(**pos_adjust)
-
 
         rot = euler_tm(robot.target_base_state.alpha, robot.target_base_state.beta, robot.target_base_state.gamma)
         
         l = math.hypot(self.x_vel, self.y_vel) * step_time
         phi = math.atan2(self.y_vel, self.x_vel) 
         d_swing = swing_pos(min(delta_t / step_time, 1), self.params['step_height'], l, phi)
-        d_ground = ground_pos(min(delta_t / step_time, 1), l, phi)
+        d_ground = ground_pos(min(delta_t / step_time, 1), l/2, phi)
         for i, leg in enumerate(robot.arms):
             target_foot_pos = np.array([body_pts[i][0], body_pts[i][1], 0]) + self.prev_foot_pos[i]
             if i in self.state:
@@ -64,9 +58,8 @@ class OpenWalk(Gait):
             self.next_state()
             if self.count == 1:
                 self.movement_vector = robot.movement_vector
-                self.x_vel = robot.movement_vector['x'] * 2
-                self.y_vel = robot.movement_vector['y'] * 2
-
+                self.x_vel = robot.movement_vector['x'] 
+                self.y_vel = robot.movement_vector['y']
             self.count = (self.count + 1) % 2
 
     def next_state(self):

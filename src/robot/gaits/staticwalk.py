@@ -16,7 +16,6 @@ class StaticWalk(Gait):
             'step_height': 2,  # inches,
         }
         self.last_loop_time = time.time()
-        self.last_time = time.time()
         self.state = [1]
         self.movement_vector = {'x': 0, 'y': 0,'z':0, 'alpha':0,'beta':0,'gamma':0}
         self.x_vel = 0
@@ -34,11 +33,6 @@ class StaticWalk(Gait):
 
         body_pts = get_body_pts(robot.target_base_state, width, length, False)
         
-        pos_adjust = {k: v*(time.time()-self.last_time) for k,v in self.movement_vector.items()}
-        self.last_time=time.time()
-        robot.target_base_state.move(**pos_adjust)
-
-
         rot = euler_tm(robot.target_base_state.alpha, robot.target_base_state.beta, robot.target_base_state.gamma)
         
         l = math.hypot(self.x_vel, self.y_vel) * step_time

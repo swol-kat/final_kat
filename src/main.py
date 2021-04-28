@@ -349,8 +349,6 @@ def joint_range_test(points_to_gen=100):
             loop2()
     
 
-
-
 def go_home():
     for a in arm_dict.values():
         a.go_to_thetas(np.array([0,0,0]))
@@ -358,4 +356,6 @@ def go_home():
 
 if __name__ =="__main__":
     robot = setup()
-    robot.gait = OpenWalk()
+    robot.gait = Wiggle()
+    while True:
+        loop()

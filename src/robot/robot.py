@@ -2,7 +2,7 @@ import json
 
 from .gaits import Gait, Wiggle, OpenWalk
 from .util import BodyState
-
+import time
 
 class Robot:
     config: dict
@@ -29,12 +29,14 @@ class Robot:
         """
         print('Robot is booting')
 
-        self.base_state = BodyState(z=11)
-        self.target_base_state = BodyState(z=11)
+        self.base_state = BodyState(z=13)
+        self.target_base_state = BodyState(z=13)
         
         self.movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
+        self.last_time = time.time()
 
         self.gait = OpenWalk()
+        self.last_time = time.time()
         print('Robot is booted')
          
 
@@ -43,14 +45,22 @@ class Robot:
         main control loop of robot run this in a while loop or something
         :return:
         """
-        
+        pos_adjust = {k: v*(time.time()-self.last_time) for k,v in self.movement_vector.items()}
+        self.last_time=time.time()
+        self.target_base_state.move(**pos_adjust)
         self.base_state = self.target_base_state
+
         if self.gait:
             self.gait.loop(self)
         for arm in self.arms:
             arm.update()
+        self.last_time = time.time()
         
-        
+    def reset():
+        self.base_state = BodyState(z=13)
+        self.target_base_state = BodyState(z=13)
+        self.movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
+        self.state.gait=Wiggle()
 
     def reload_config(self):
         """
