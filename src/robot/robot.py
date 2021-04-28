@@ -30,42 +30,22 @@ class Robot:
         """
         print('Robot is booting')
 
-        self.height = 4.5
-        self.base_state = BodyState(y=4,z=self.height)
-        self.target_base_state = BodyState(y=4, z=self.height)
-        self.stance_width = 4
-        self.stance_length = 4
-        self.executing_movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
+        self.height = 14
+        self.base_state = BodyState(z=self.height)
+        self.target_base_state = BodyState(z=self.height)
+        self.stance_width = 2
+        self.stance_length = 5
         self.movement_vector = dict(x=0, y=0, z=0, alpha=0, beta=0, gamma=0)
 
-        self.gait = Wiggle()
+        self.gait = StaticWalk()
         self.gait.prev_foot_pos = get_body_pts(BodyState(),self.config['width']+self.stance_width,self.config['length']+self.stance_length, False)
-        self.last_time = time.time()
-
-        self.loop_time = .5
-        self.in_loop = False
-        self.last_loop_time = time.time()
-         
 
     def loop(self):
         """
         main control loop of robot run this in a while loop or something
         :return:
         """
-        if self.in_loop:
-            pos_adjust = {k: v*(time.time()-self.last_time) for k,v in self.executing_movement_vector.items()}
-            self.last_time = time.time()
-            self.target_base_state.move(**pos_adjust)
-            print(self.target_base_state)
-            self.base_state = self.target_base_state
-            if time.time() - self.last_loop_time > self.loop_time:
-                self.in_loop = False
-        else:
-            # self.target_base_state = BodyState(z=self.height)
-            self.gait.prev_foot_pos = get_body_pts(BodyState(),self.config['width']+self.stance_width,self.config['length']+self.stance_length, False)
-            self.executing_movement_vector = copy.deepcopy(self.movement_vector)
-            self.last_loop_time = time.time()
-            self.in_loop = True              
+        self.base_state = self.target_base_state          
                 
         if self.gait:
             self.gait.loop(self)

@@ -31,7 +31,7 @@ def setup():
     get_errors()
     disable_joints()
     print('home the robit')
-    time.sleep(15)
+    time.sleep(25)
     zero_joints()
     enable_joints()
     return create_robot()
@@ -358,9 +358,7 @@ if __name__ =="__main__":
     robot = setup()
     i = 0
     while True:
-        i += 1
+        i+= 1
         loop()
-        if i ==500:
-            set_movement_vector(z=.5)
-        if robot.target_base_state.z > 13:
-            set_movement_vector()
+        if i == 500:
+            set_movement_vector(y=1)

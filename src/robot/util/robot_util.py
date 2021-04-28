@@ -17,8 +17,8 @@ def get_body_pts(state: BodyState, width: float, length: float, zero=False):
         # set cg loc to zero zero for x,y0
         cg[0:2]= [0 ,0]
 
-    body_pts = [[width / 2, length / 2, 0], [-width / 2, length / 2, 0], [-width / 2, -length / 2, 0],
-                [width / 2, -length / 2, 0]]
+    body_pts = [[width / 2, length / 2, 0], [-width / 2, length / 2 , 0], [-width / 2, -(length/2) + 2, 0],
+                [width / 2, -(length/2)  + 2, 0]]
     # convert to np array
     body_pts = [np.array(pt) for pt in body_pts]
     # calculate rot matrix for body

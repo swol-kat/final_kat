@@ -55,10 +55,10 @@ def main():
             motor_configuration(od.axis0)
             motor_configuration(od.axis1)
             if od.serial_number in baby_odrives:
-                od.axis0.current_lim = 10.0
-                od.axis0.axis.motor.config.requested_current_range = 20.0
-                od.axis1.current_lim = 10.0
-                od.axis1.axis.motor.config.requested_current_range = 20.0
+                od.axis0.current_lim = 15.0
+                od.axis0.axis.motor.config.requested_current_range = 25.0
+                od.axis1.current_lim = 15.0
+                od.axis1.axis.motor.config.requested_current_range = 25.0
             drive_configuration(od)
             od.save_configuration()
             print(od.serial_number)
